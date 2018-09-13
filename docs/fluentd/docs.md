@@ -145,11 +145,25 @@ There are many labels you can use to describe the log info.
 - `aliyun.logs.$name=$path`
     - Name is an identify, can be any string you want. The valid characters in name are `0-9a-zA-Z_-`
     - Path is the log file path, can contians wildcard. `stdout` is a special value which means stdout of the container.
-- `aliyun.logs.$name.format=none|json|csv|nginx|apache2|regexp` format of the log
+- `aliyun.logs.$name.format=none|json|csv|nginx|apache2|regexp|multiline` format of the log
     - none: pure text.
     - json: a json object per line.
     - regexp: use regex parse log. The pattern is specified by `aliyun.logs.$name.format.pattern = $regex`
+    - multiline: use regex parse multiline log. `aliyun.logs.$name.format.format_firstline = $regex` `aliyun.logs.$name.format.format[1-5] = $element_regex` `aliyun.logs.$name.format.format_info = $msg_extract_regex`
 - `aliyun.logs.$name.tags="k1=v1,k2=v2"`: tags will be appended to log. 
 - `aliyun.logs.$name.target=target-for-log-storage`: target is used by the output plugins, instruct the plugins to store
 logs in appropriate place. For elasticsearch output, target means the log index in elasticsearch. For aliyun_sls output,
 target means the logstore in aliyun sls. The default value of target is the log name.
+
+### example 
+
+Alicloud docker Java multiline log example
+```yml
+labels:
+    aliyun.logs.$name: stdout
+    aliyun.logs.$name.target: $sls_store
+    aliyun.logs.$name.format: multiline
+    aliyun.logs.$name.format.format_firstline: '/\{"log":\"\d{4}-\d{1,2}-\d{1,2}\s/'
+    aliyun.logs.$name.format.format_info: '/\{"log":"(?<msg>.*?)","stream".*?\}/'
+    aliyun.logs.$name.format.format1: '/{"log":"(?<log_time>\d{4}-\d{1,2}-\d{1,2}\s+\d{1,2}:\d{1,2}:\d{1,2}\.\d+)\s+(?<level>[^\s]+)\s*(?<track>\[.*?\])\s*.*?---\s*(?<thread>\[.*?\])\s*(?<msg>.*?)\","stream".*?"time":"(?<time>[\d\-T:\.Z]+)"}/'
+``

@@ -58,4 +58,14 @@ func init() {
 		}
 		return ret, nil
 	})
+	Register("multiline", func(info *LogInfoNode) (map[string]string, error) {
+		ret, err := simpleConverter([]string{"format_firstline", "format_info", "format1", "format2", "format3", "format4", "format5", "time_format"})(info)
+		if err != nil {
+			return ret, err
+		}
+		if ret["format_firstline"] == "" {
+			return nil, fmt.Errorf("regex pattern can not be empty")
+		}
+		return ret, nil
+	})
 }

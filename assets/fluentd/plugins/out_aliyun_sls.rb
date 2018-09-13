@@ -33,7 +33,7 @@ module Fluent
     end
 
     def format(tag, time, record)
-      if record["@target"]
+      if record["_target"]
         [tag, time, record].to_msgpack
       else
         super
@@ -75,15 +75,15 @@ module Fluent
     def write(chunk)
       log_list_hash = {}
       chunk.msgpack_each do |tag, time, record|
-        if record and record["@target"]
-          logStoreName = record["@target"]
-          record.delete("@target")
+        if record and record["_target"]
+          logStoreName = record["_target"]
+          record.delete("_target")
           if not log_list_hash[logStoreName]
             log_list_hash[logStoreName] = []
           end
           log_list_hash[logStoreName] << getLogItem(record)
         else
-          log.warn "no @target key in record: #{record}, tag: #{tag}, time: #{time}"
+          log.warn "no _target key in record: #{record}, tag: #{tag}, time: #{time}"
         end
       end
 

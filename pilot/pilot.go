@@ -534,12 +534,24 @@ func (p *Pilot) parseLogConfig(name string, info *LogInfoNode, jsonLogPath strin
 		if p.piloter.Name() == PILOT_FILEBEAT {
 			logFile = logFile + "*"
 		}
-
+		if format.value == "multiline" {
+			return &LogConfig{
+				Name:         name,
+				HostDir:      filepath.Join(p.base, filepath.Dir(jsonLogPath)),
+				File:         logFile,
+				Format:       "multilineex",
+				Tags:         tagMap,
+				FormatConfig: formatConfig,
+				Target:       target,
+				EstimateTime: false,
+				Stdout:       true,
+			}, nil
+		}
 		return &LogConfig{
 			Name:         name,
 			HostDir:      filepath.Join(p.base, filepath.Dir(jsonLogPath)),
 			File:         logFile,
-			Format:       format.value,
+			Format:       "json",
 			Tags:         tagMap,
 			FormatConfig: map[string]string{"time_format": "%Y-%m-%dT%H:%M:%S.%NZ"},
 			Target:       target,
@@ -573,6 +585,7 @@ func (p *Pilot) parseLogConfig(name string, info *LogInfoNode, jsonLogPath strin
 		FormatConfig: formatConfig,
 		Target:       target,
 	}
+	log.Infof("log config %s, foramt is %s", cfg.File, cfg.Format)
 
 	if formatConfig["time_key"] == "" {
 		cfg.EstimateTime = true

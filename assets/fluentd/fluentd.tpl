@@ -3,13 +3,10 @@
   @type tail
   tag docker.{{ $.containerId }}.{{ .Name }}
   path {{ .HostDir }}/{{ .File }}
+  multiline_flush_interval 1s
 
   <parse>
-  {{if .Stdout}}
-  @type json
-  {{else}}
   @type {{ .Format }}
-  {{end}}
   {{ $time_key := "" }}
   {{if .FormatConfig}}
   {{range $key, $value := .FormatConfig}}
